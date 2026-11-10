@@ -5,8 +5,10 @@ on your machine and in Vercel's environment variables. Never commit them.
 
 ## 1. Supabase
 
-1. Create a project. Pick a US East region so it sits near Vercel's default
-   function region. Save the database password.
+1. Create a project. Pick the region nearest your users (Americas for the
+   US). Untick "Automatically expose new tables" and tick "Enable automatic
+   RLS"; the migrations grant access table by table. Save the database
+   password.
 2. Authentication > Sign In / Providers: keep Email on, turn **Allow new users
    to sign up** off. The seed script creates the demo users.
 3. Copy into `.env.local`:
@@ -27,9 +29,9 @@ on your machine and in Vercel's environment variables. Never commit them.
 
 ## 2. The model that reads reports
 
-Any OpenAI-compatible endpoint works. For DeepSeek, create an API key and set
-`LLM_API_KEY`. `LLM_BASE_URL` and `LLM_MODEL` already default to DeepSeek in
-`.env.example`.
+Any OpenAI-compatible endpoint works. The defaults in `.env.example` point at
+OpenRouter with a free model: create a key at openrouter.ai and set
+`LLM_API_KEY`. Change `LLM_MODEL` to use a different model.
 
 ## 3. Vercel
 
