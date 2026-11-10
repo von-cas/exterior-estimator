@@ -3,6 +3,9 @@ import { requireUser, canEstimate } from "@/lib/session";
 import { usd, when } from "@/lib/format";
 import { UploadReport } from "@/components/UploadReport";
 
+// Reading a report with a free model can take a few minutes.
+export const maxDuration = 300;
+
 export default async function Jobs() {
   const { sb, profile } = await requireUser();
   const { data: jobs, error } = await sb

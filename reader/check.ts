@@ -88,6 +88,15 @@ export function check(read: ReadResult, pages?: string[], today = new Date()): F
     }
   }
 
+  // Code counts the row labels on the pages and compares with what the model listed.
+  if (pages) {
+    const labels = (prefix: string) => new Set(pages.join("\n").match(new RegExp(`\\b${prefix}-\\d+\\b`, "g")) ?? []).size;
+    const listedDoors = read.doors.reduce((s, d) => s + d.count, 0);
+    for (const [what, onPages, listed, key] of [["windows", labels("W"), windowCount, "window_count_total"], ["doors", labels("D"), listedDoors, null]] as const) {
+      if (onPages !== listed) add("blocking", "rows_missed", `The report lists ${onPages} ${what} (row labels on the pages); the reader returned ${listed}. Check the openings pages.`, key);
+    }
+  }
+
   if (read.windows.length) {
     add("info", "photo_sizes", "Window sizes come from photos: good enough to price, not to order. Window lines stay locked for purchasing until a field measure is recorded.");
   }

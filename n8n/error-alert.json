@@ -1,0 +1,50 @@
+{
+  "name": "Exterior estimator: error alert",
+  "nodes": [
+    {
+      "id": "e1",
+      "name": "When any workflow fails",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "e2",
+      "name": "Email the alert",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "sendTo": "you@example.com",
+        "subject": "=n8n failed: {{ $json.workflow.name }}",
+        "message": "={{ `<p><b>${$json.workflow.name}</b> failed at node <b>${$json.execution.lastNodeExecuted}</b>.</p><p>${$json.execution.error.message}</p><p><a href=\"${$json.execution.url}\">Open the execution</a></p>` }}",
+        "options": {
+          "appendAttribution": false
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When any workflow fails": {
+      "main": [
+        [
+          {
+            "node": "Email the alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
