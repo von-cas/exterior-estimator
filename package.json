@@ -10,8 +10,9 @@
     "start": "next start",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "db:push": "supabase db push --db-url \"$SUPABASE_DB_URL\"",
-    "seed": "tsx --env-file=.env.local supabase/seed/seed.ts"
+    "db:push": "supabase db push --remote \"$SUPABASE_DB_URL\" --yes",
+    "seed": "tsx --env-file=.env.local supabase/seed/seed.ts",
+    "check:rls": "tsx --env-file=.env.local supabase/checks/rls.ts"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
