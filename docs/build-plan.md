@@ -20,6 +20,9 @@ docs/              Architecture, decisions, edge cases
 
 ## Steps, in order
 
+All six are built. Step 5's n8n workflow needs its two credentials before it
+runs (see [n8n/README.md](../n8n/README.md)).
+
 | # | Step | Done when |
 |---|---|---|
 | 1 | **Engine.** Six rule types; roofing, gutters, siding, windows; pricing with margin; estimate mode and production mode | `npm test` passes, including one hand-worked case per rule type and per trade |
@@ -47,6 +50,23 @@ docs/              Architecture, decisions, edge cases
 - Two-step sign-in; estimate versions and change orders.
 - Reading scanned PDFs from page images.
 - A regression set of past real jobs.
+
+## What the first real read showed
+
+On the sample report, with a free model:
+
+- Each read takes one to two minutes, and free endpoints sometimes return an
+  empty answer or a rate limit. The reader retries once, then tries the next
+  model, and every attempt is stored in `ai_runs`.
+- Asked for everything in one call, the model skipped the window table. Values
+  and openings are now two smaller calls, and code counts the `W-n` and `D-n`
+  row labels on the pages to check the list.
+- The model once listed doors among the windows. Code now sorts rows by their
+  label, not by what the model says they are.
+- `Sides Length 149' 3'` (149 ft of siding, 3 ft of other) was read as
+  149 ft 3 in. The checker blocked it because 149.25 is not on the page.
+- The model picked the siding total with openings (2,885 sq ft) until the field
+  description named the exact row.
 
 ## Testing accuracy
 

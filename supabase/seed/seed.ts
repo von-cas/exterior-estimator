@@ -77,8 +77,12 @@ const ft = (f: number, i = 0) => Math.round((f + i / 12) * 10000) / 10000;
 
 async function demoJob(estimator: string) {
   if (process.argv.includes("--reset")) {
+    // Queued events for the demo's estimates and orders go too, so n8n never sends a deleted order.
+    const { data: jobs } = await db.from("jobs").select("id, estimates(id, purchase_orders(id))").eq("name", DEMO_JOB);
+    const ids = (jobs ?? []).flatMap((j) => j.estimates.flatMap((e: { id: string; purchase_orders: { id: string }[] }) => [e.id, ...e.purchase_orders.map((p) => p.id)]));
+    if (ids.length) await ok2(db.from("event_outbox").delete().in("entity_id", ids), "reset outbox");
     await ok2(db.from("jobs").delete().eq("name", DEMO_JOB), "reset demo job");
-    console.log("demo job removed");
+    console.log(`demo job removed with ${ids.length} estimate and order ids`);
   }
   const exists = ok(await db.from("jobs").select("id").eq("name", DEMO_JOB), "job");
   if (exists.length) return console.log("demo job already there");

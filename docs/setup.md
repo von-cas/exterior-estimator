@@ -21,12 +21,18 @@ on your machine and in Vercel's environment variables. Never commit them.
 4. Apply the schema and seed data:
 
    ```
-   npx supabase db push --db-url "$SUPABASE_DB_URL"
-   npm run seed
+   set -a; source .env.local; set +a
+   npm run db:push
+   DEMO_PASSWORD='choose one' npm run seed
+   DEMO_PASSWORD='the same' npm run check:rls
    ```
 
    This creates the tables, row-level security, the private `reports` bucket,
-   the sample catalog and four demo users (admin, estimator, sales, production).
+   the sample catalog, one demo job and four demo users
+   (`admin@`, `estimator@`, `sales@` and `production@exterior-estimator.test`,
+   all with `DEMO_PASSWORD`). `check:rls` signs in as each role and shows what
+   it can read: sales sees no prices or labor rates. `npm run seed:reset` puts
+   the demo job back to its starting state.
 
 ## 2. The model that reads reports
 
@@ -46,18 +52,17 @@ customer reports.
 2. Add the same variables as `.env.local`, except `SUPABASE_DB_URL`, plus
    `OUTBOX_SECRET` (any long random string).
 3. Deploy. Production is reachable by anyone, but every screen and API route
-   needs a signed-in user or the outbox secret.
+   needs a signed-in user or the outbox secret. Note that the first deployment
+   of a new Vercel project goes to production even without `--prod`.
 
 ## 4. n8n
 
 n8n can run anywhere, including on your own machine with no public address,
 because it collects events from the app instead of receiving them.
 
-1. Import the workflows in `n8n/`.
-2. Create two credentials: a header credential that sends `OUTBOX_SECRET`, and
-   an email credential (SMTP or Gmail) for sending purchase orders.
-3. Set the app address in the workflow's first node and activate both
-   workflows.
+Follow [n8n/README.md](../n8n/README.md): import both workflows, add a header
+credential that sends `OUTBOX_SECRET` and an email credential, set the app
+address, and activate them.
 
 A public tunnel is needed only if an outside service must call n8n directly,
 such as a HOVER webhook. For that, `cloudflared tunnel --url

@@ -84,11 +84,19 @@ retry can never order twice.
 - `labor_rates`: trade, task, unit, rate, valid dates.
 - `templates` and `template_lines`: what a "roof replacement" contains. Each
   line names a product role, a measurement, a rule type and a default waste.
-- `estimates` and `estimate_lines`: each sent estimate keeps a snapshot of the
-  prices it used, so a later price change never alters a signed estimate.
+- `estimates` and `estimate_costs`: the estimate is split in two so row-level
+  security can hide cost from sales. `estimates` holds the selling prices;
+  `estimate_costs` holds margins, every calculated line and the snapshot of
+  the prices used, so a later price change never alters a signed estimate.
 - `measurement_reports` and `measurements`: every value with its source page
   and who verified it.
+- `flags`: what the checker raised, and who cleared each one and why.
 - `purchase_orders`, `event_outbox`, `event_log`, `ai_runs`, `audit_log`.
+
+Screens read through the signed-in user's session, so row-level security
+decides what each role sees. Every change goes through one database function
+per business action (verify measurements, save or approve an estimate, approve
+a purchase order), which checks the role again and runs in one transaction.
 
 Templates point at product **roles**, not products. A manufacturer's system
 fills the roles, so switching manufacturer is one choice, not twenty line edits.
