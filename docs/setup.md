@@ -16,7 +16,8 @@ on your machine and in Vercel's environment variables. Never commit them.
    - Publishable key (older projects: anon key) → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - Secret key (older projects: service_role key) → `SUPABASE_SECRET_KEY`
    - Connect > Session pooler connection string, with the password filled in →
-     `SUPABASE_DB_URL`
+     `SUPABASE_DB_URL`. Not the direct connection: its `db.<ref>.supabase.co`
+     host is IPv6-only and fails on most home and office networks.
 4. Apply the schema and seed data:
 
    ```
@@ -32,6 +33,12 @@ on your machine and in Vercel's environment variables. Never commit them.
 Any OpenAI-compatible endpoint works. The defaults in `.env.example` point at
 OpenRouter with a free model: create a key at openrouter.ai and set
 `LLM_API_KEY`. Change `LLM_MODEL` to use a different model.
+
+OpenRouter only routes to free models whose provider may train on prompts when
+that is allowed at openrouter.ai/settings/privacy; otherwise every call returns
+404 "Free model training violation". The reader sends only the measurement
+pages, never the cover page with the address. Use a paid model for real
+customer reports.
 
 ## 3. Vercel
 
