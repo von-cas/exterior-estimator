@@ -9,3 +9,5 @@ private/
 *.pdf
 .DS_Store
 supabase/.temp/
+next-env.d.ts
+*.tsbuildinfo

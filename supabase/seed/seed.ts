@@ -20,10 +20,17 @@ export const DEMO_USERS = [
 export const DEMO_JOB = "Demo job: sample HOVER report";
 const email = (role: string) => `${role}@exterior-estimator.test`;
 
-const ok = <T>(r: { data: T; error: { message: string } | null }, what: string): T => {
-  if (r.error) throw new Error(`${what}: ${r.error.message}`);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ok = <R extends { data: any; error: { message: string } | null }>(r: R, what: string): NonNullable<R["data"]> => {
+  if (r.error || r.data === null) throw new Error(`${what}: ${r.error?.message ?? "no data"}`);
   return r.data;
 };
+
+/** For writes that return no rows. */
+async function ok2(q: PromiseLike<{ error: { message: string } | null }>, what: string) {
+  const { error } = await q;
+  if (error) throw new Error(`${what}: ${error.message}`);
+}
 
 async function users() {
   const existing = ok(await db.auth.admin.listUsers({ perPage: 1000 }), "list users").users;
@@ -31,9 +38,9 @@ async function users() {
   for (const u of DEMO_USERS) {
     const found = existing.find((x) => x.email === email(u.role));
     const id = found
-      ? ok(await db.auth.admin.updateUserById(found.id, { password }), "update user").user.id
+      ? ok(await db.auth.admin.updateUserById(found.id, { password }), "update user").user!.id
       : ok(await db.auth.admin.createUser({ email: email(u.role), password, email_confirm: true }), "create user").user!.id;
-    ok(await db.from("profiles").upsert({ id, full_name: u.name, role: u.role }), "profile");
+    await ok2(db.from("profiles").upsert({ id, full_name: u.name, role: u.role }), "profile");
     ids[u.role] = id;
   }
   return ids;
@@ -45,11 +52,11 @@ async function catalog() {
       { sku: p.sku, name: p.name, trade: p.trade, role: p.role, unit: p.unit, coverage: p.coverage },
       { onConflict: "sku" }).select("id").single(), "product");
     const current = ok(await db.from("prices").select("id").eq("product_id", row.id).eq("supplier", p.supplier).is("valid_to", null), "price");
-    if (!current.length) ok(await db.from("prices").insert({ product_id: row.id, supplier: p.supplier, unit_cost: p.unitCost, valid_from: "2026-01-01" }), "insert price");
+    if (!current.length) await ok2(db.from("prices").insert({ product_id: row.id, supplier: p.supplier, unit_cost: p.unitCost, valid_from: "2026-01-01" }), "insert price");
   }
   for (const r of LABOR_RATES) {
     const current = ok(await db.from("labor_rates").select("id").eq("trade", r.trade).eq("task", r.task).is("valid_to", null), "labor");
-    if (!current.length) ok(await db.from("labor_rates").insert({ ...r, valid_from: "2026-01-01" }), "insert labor");
+    if (!current.length) await ok2(db.from("labor_rates").insert({ ...r, valid_from: "2026-01-01" }), "insert labor");
   }
   for (const trade of ["roofing", "siding", "windows", "gutters"] as const) {
     const t = ok(await db.from("templates").upsert({ trade, name: `Standard ${trade}`, default_margin: MARGINS[trade] }, { onConflict: "trade,name" }).select("id").single(), "template");
@@ -58,17 +65,21 @@ async function catalog() {
       waste: l.waste ?? null, spacing: l.spacing ?? null, qty_each: l.qtyEach ?? null, quantity: l.quantity ?? null,
       bands: l.bands ?? null, production_only: l.productionOnly ?? false, sort: i,
     }));
-    ok(await db.from("template_lines").upsert(lines, { onConflict: "key" }), "template lines");
+    await ok2(db.from("template_lines").upsert(lines, { onConflict: "key" }), "template lines");
     const labor = LABOR.filter((l) => l.trade === trade).map((l, i) => ({
       template_id: t.id, key: l.key, task: l.task, label: l.label, measurement: l.measurement, per: l.per ?? null, times: l.times ?? null, sort: i,
     }));
-    ok(await db.from("template_labor").upsert(labor, { onConflict: "key" }), "template labor");
+    await ok2(db.from("template_labor").upsert(labor, { onConflict: "key" }), "template labor");
   }
 }
 
 const ft = (f: number, i = 0) => Math.round((f + i / 12) * 10000) / 10000;
 
 async function demoJob(estimator: string) {
+  if (process.argv.includes("--reset")) {
+    await ok2(db.from("jobs").delete().eq("name", DEMO_JOB), "reset demo job");
+    console.log("demo job removed");
+  }
   const exists = ok(await db.from("jobs").select("id").eq("name", DEMO_JOB), "job");
   if (exists.length) return console.log("demo job already there");
   const extra = [
@@ -85,7 +96,7 @@ async function demoJob(estimator: string) {
   const site = SITE_FIELDS.map((s) => ({ key: s.key, label: s.label, value: null, unit: s.unit, page: null, source: "site" }));
   for (const s of SITE_FIELDS) flags.push({ severity: "blocking", code: "missing", message: `${s.label}: the report cannot know this. Record it from the site visit.`, measurement_key: s.key });
 
-  ok(await db.rpc("create_report", {
+  await ok2(db.rpc("create_report", {
     p_actor: estimator, p_job_id: null, p_job_name: DEMO_JOB, p_source: "seed", p_file_path: null, p_sha256: null,
     p_report_date: null, p_measurements: [...values.map((v) => ({ ...v, source: "report" })), ...site],
     p_windows: windows, p_flags: flags, p_status: "needs_review",

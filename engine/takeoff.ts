@@ -8,16 +8,28 @@ export interface SupplierGroup {
   locked: MaterialLine[];
 }
 
-/** Production takeoff: the same material lines, grouped by supplier for purchase orders. */
+/**
+ * Production takeoff: the same material lines, grouped by supplier for
+ * purchase orders. Lines for the same product are merged into one order line;
+ * each was already rounded up to whole purchase units.
+ */
 export function takeoff(result: EstimateResult): SupplierGroup[] {
   const groups = new Map<string, SupplierGroup>();
   for (const line of result.materials) {
     const g = groups.get(line.supplier) ?? { supplier: line.supplier, lines: [], cost: 0, locked: [] };
-    g.lines.push(line);
+    const same = g.lines.find((l) => l.productId === line.productId);
+    if (same) {
+      same.quantity += line.quantity;
+      same.cost += line.cost;
+      same.lockedForPurchase ||= line.lockedForPurchase;
+      same.workings += `; ${line.workings}`;
+    } else {
+      g.lines.push({ ...line, label: line.productName });
+    }
     g.cost += line.cost;
-    if (line.lockedForPurchase) g.locked.push(line);
     groups.set(line.supplier, g);
   }
+  for (const g of groups.values()) g.locked = g.lines.filter((l) => l.lockedForPurchase);
   return [...groups.values()].sort((a, b) => a.supplier.localeCompare(b.supplier));
 }
 

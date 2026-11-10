@@ -19,7 +19,7 @@ export function areaCoverage(area: number, waste: number, coverage: number): Rul
   const raw = (area * (1 + waste)) / coverage;
   return {
     quantity: roundUp(raw),
-    workings: `${n(area)} sq ft × ${n(1 + waste)} ÷ ${n(coverage)} = ${n(raw, 1)} → ${roundUp(raw)}`,
+    workings: `${n(area)} sq ft × ${n(1 + waste)} ÷ ${n(coverage)} = ${n(raw)} → ${roundUp(raw)}`,
   };
 }
 
@@ -30,7 +30,7 @@ export function linearCoverage(length: number, waste: number, pieceLength: numbe
   const raw = (length * (1 + waste)) / pieceLength;
   return {
     quantity: roundUp(raw),
-    workings: `${n(length)} ft × ${n(1 + waste)} ÷ ${n(pieceLength)} = ${n(raw, 1)} → ${roundUp(raw)}`,
+    workings: `${n(length)} ft × ${n(1 + waste)} ÷ ${n(pieceLength)} = ${n(raw)} → ${roundUp(raw)}`,
   };
 }
 
@@ -40,7 +40,7 @@ export function perSpacing(length: number, spacing: number): RuleResult {
   const raw = length / spacing;
   return {
     quantity: roundUp(raw),
-    workings: `${n(length)} ft ÷ ${n(spacing)} ft = ${n(raw, 1)} → ${roundUp(raw)}`,
+    workings: `${n(length)} ft ÷ ${n(spacing)} ft = ${n(raw)} → ${roundUp(raw)}`,
   };
 }
 

@@ -105,10 +105,19 @@ describe("changing inputs", () => {
 
 describe("takeoff and customer view come from the same calculation", () => {
   const r = calculate(inputs(["roofing", "siding", "windows", "gutters"]));
-  it("groups every material line by supplier with no line lost", () => {
+  it("groups by supplier and merges lines for the same product, with no quantity or cost lost", () => {
     const groups = takeoff(r);
-    expect(groups.flatMap((g) => g.lines)).toHaveLength(r.materials.length);
+    const lines = groups.flatMap((g) => g.lines);
     expect(groups.reduce((s, g) => s + g.cost, 0)).toBe(r.materials.reduce((s, m) => s + m.cost, 0));
+    expect(lines.reduce((s, l) => s + l.quantity, 0)).toBe(r.materials.reduce((s, m) => s + m.quantity, 0));
+    expect(new Set(lines.map((l) => l.productId)).size).toBe(lines.length);
+    // 9 + 4 + 4 + 1 windows up to 75 UI become one order line of 18
+    expect(lines.find((l) => l.sku === "WN-DH-75")!.quantity).toBe(18);
+  });
+  it("does not change the estimate it was made from", () => {
+    const before = JSON.stringify(r);
+    takeoff(r);
+    expect(JSON.stringify(r)).toBe(before);
   });
   it("the customer view has prices but no cost, margin or production-only lines", () => {
     const view = JSON.stringify(customerView(r));
