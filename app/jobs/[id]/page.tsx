@@ -52,7 +52,8 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
           {canEstimate(profile.role) && (report.status === "verified"
             ? <ActionButton label="Reopen" action={reopenMeasurements.bind(null, report.id)} />
             : <ActionButton primary label="Verify measurements" action={verifyMeasurements.bind(null, report.id)}
-                disabled={blocking > 0} title={blocking ? `${blocking} blocking flag(s) open` : undefined} />)}
+                disabled={blocking > 0} title={blocking ? `${blocking} blocking flag(s) open` : undefined}
+                redirectTo={`/jobs/${id}/estimate`} />)}
         </div>
         <FlagList flags={flags!} canClear={editable} />
       </div>

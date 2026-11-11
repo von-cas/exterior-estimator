@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { calculate, customerView, TRADES, type EstimateResult, type Measurements, type Trade } from "@/engine";
 import { buildInputs, type Catalog, type Choices } from "@/lib/load";
 import { approveEstimate, saveEstimate } from "@/app/actions";
@@ -12,6 +13,7 @@ export function EstimateEditor(props: {
   initial: Choices; estimate: Meta | null; storedResult: EstimateResult | null;
 }) {
   const { catalog } = props;
+  const router = useRouter();
   const [choices, setChoices] = useState<Choices>(props.initial);
   const [meta, setMeta] = useState<Meta | null>(props.estimate);
   const [dirty, setDirty] = useState(!props.estimate);
@@ -44,6 +46,7 @@ export function EstimateEditor(props: {
     const r = await approveEstimate(meta.id, meta.rowVersion);
     if (!r.ok) return setError(r.error);
     setMeta({ ...meta, status: "approved", rowVersion: meta.rowVersion + 1 });
+    router.push(`/jobs/${props.jobId}/orders`);
   });
 
   const approveBlocker = !meta ? "Save first" : dirty ? "Save changes first" : !props.reportVerified ? "Verify the measurements first (gate 1)"
