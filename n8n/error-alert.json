@@ -15,18 +15,22 @@
     {
       "id": "e2",
       "name": "Email the alert",
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         240,
         300
       ],
       "parameters": {
-        "sendTo": "you@example.com",
-        "subject": "=n8n failed: {{ $json.workflow.name }}",
-        "message": "={{ `<p><b>${$json.workflow.name}</b> failed at node <b>${$json.execution.lastNodeExecuted}</b>.</p><p>${$json.execution.error.message}</p><p><a href=\"${$json.execution.url}\">Open the execution</a></p>` }}",
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ from: 'Estimator demo <onboarding@resend.dev>', to: ['you@example.com'], subject: 'n8n failed: ' + $json.workflow.name, html: `<p><b>${$json.workflow.name}</b> failed at node <b>${$json.execution.lastNodeExecuted}</b>.</p><p>${$json.execution.error.message}</p><p><a href=\"${$json.execution.url}\">Open the execution</a></p>` }) }}",
         "options": {
-          "appendAttribution": false
+          "timeout": 30000
         }
       }
     }

@@ -4,8 +4,13 @@ Exported without credentials. Import both, then:
 
 1. Create a **Header Auth** credential named `Estimator outbox` with header
    `x-outbox-secret` and the app's `OUTBOX_SECRET` as the value, and pick it on
-   the three HTTP nodes.
-2. Create a Gmail (or SMTP) credential and pick it on both email nodes.
+   the four HTTP nodes that call the app.
+2. Email goes through [Resend](https://resend.com)'s API. Create an API key
+   and a second **Header Auth** credential named `Resend` with header
+   `Authorization` and value `Bearer <your key>`, and pick it on both email
+   nodes. Without a verified domain, Resend sends from `onboarding@resend.dev`
+   and only to the address you signed up with; verify a domain and change
+   `from` to send to suppliers.
 3. In `Settings`, set `appUrl` and `orderEmailTo`; in the error workflow, set
    the alert address.
 4. In the outbox workflow's settings, choose `Exterior estimator: error alert`
