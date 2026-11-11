@@ -21,6 +21,8 @@ Exported without credentials. Import both, then:
 | `outbox.json` | Every minute: claims events from the app, emails each approved purchase order, acknowledges the result. A failed send is acknowledged as failed, so the app retries it; after 5 attempts the app gives up and the workflow raises an error |
 | `error-alert.json` | Emails an alert when any workflow fails, including a purchase order the outbox gave up on |
 
+The four calls to the app retry up to 3 times, 5 seconds apart, so a short network blip doesn't fail the run. Both are safe to repeat: an unanswered claim is offered again after 10 minutes, and acknowledging twice is harmless. The email call does not retry by itself; a failed send is acknowledged as failed and the app offers it again.
+
 n8n never calculates anything. It only moves events the app has already
 approved. Each purchase order carries a unique key in its subject and body, so
 a supplier can spot a duplicate if a send is retried after a timeout.

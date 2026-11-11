@@ -67,7 +67,10 @@
         "options": {
           "timeout": 30000
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "a4",
@@ -156,7 +159,10 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ id: $('Purchase order?').item.json.id, ok: true }) }}",
         "options": {}
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "a8",
@@ -176,7 +182,10 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ id: $('Purchase order?').item.json.id, ok: false, error: String($json.error?.message ?? $json.error ?? 'email failed').slice(0, 500) }) }}",
         "options": {}
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
       "id": "a9",
@@ -241,7 +250,10 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ id: $json.id, ok: true }) }}",
         "options": {}
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     }
   ],
   "connections": {
