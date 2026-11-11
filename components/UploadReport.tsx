@@ -14,7 +14,7 @@ export function UploadReport() {
       </div>
       <p className="muted small">
         {pending
-          ? "Reading the report. The model gets the measurement pages with the address removed, never the cover page. This can take two or three minutes on a free model."
+          ? "Reading the report. The model gets the measurement pages with the address removed, never the cover page. This usually takes 10 to 20 seconds."
           : "The model copies numbers with the page each came from. Code then checks every number against its page and the report's own totals."}
       </p>
       {state && !state.ok && <div className="notice bad">{state.error}</div>}

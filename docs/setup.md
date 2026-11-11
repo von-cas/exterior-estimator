@@ -37,8 +37,11 @@ on your machine and in Vercel's environment variables. Never commit them.
 ## 2. The model that reads reports
 
 Any OpenAI-compatible endpoint works. The defaults in `.env.example` point at
-OpenRouter with a free model: create a key at openrouter.ai and set
-`LLM_API_KEY`. Change `LLM_MODEL` to use a different model.
+OpenRouter with Claude Haiku 5.5 and a Gemini Flash-Lite fallback: create a key
+at openrouter.ai, add a little credit and set `LLM_API_KEY`. On the sample
+report a read takes about 12 seconds and costs about a third of a cent. Change
+`LLM_MODEL` to use a different model; free models also work but took one to
+two minutes per read and sometimes failed.
 
 OpenRouter only routes to free models whose provider may train on prompts when
 that is allowed at openrouter.ai/settings/privacy; otherwise every call returns

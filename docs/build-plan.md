@@ -53,10 +53,11 @@ runs (see [n8n/README.md](../n8n/README.md)).
 
 ## What the first real read showed
 
-On the sample report, with a free model:
+On the sample report:
 
-- Each read takes one to two minutes, and free endpoints sometimes return an
-  empty answer or a rate limit. The reader retries once, then tries the next
+- With a free model each read took one to two minutes, and free endpoints
+  sometimes returned an empty answer or a rate limit. With Claude Haiku 5.5 a
+  read takes about 12 seconds. The reader retries once, then tries the next
   model, and every attempt is stored in `ai_runs`.
 - Asked for everything in one call, the model skipped the window table. Values
   and openings are now two smaller calls, and code counts the `W-n` and `D-n`
