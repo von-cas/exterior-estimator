@@ -85,45 +85,34 @@
     },
     {
       "id": "a5",
-      "name": "By event type",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.2,
+      "name": "Purchase order?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
       "position": [
         880,
         300
       ],
       "parameters": {
-        "rules": {
-          "values": [
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
             {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "combinator": "and",
-                "conditions": [
-                  {
-                    "id": "c1",
-                    "leftValue": "={{ $json.event_type }}",
-                    "rightValue": "purchase_order.approved",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ]
-              },
-              "renameOutput": true,
-              "outputKey": "purchase order"
+              "id": "c1",
+              "leftValue": "={{ $json.event_type }}",
+              "rightValue": "purchase_order.approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
             }
           ]
         },
-        "options": {
-          "fallbackOutput": "extra",
-          "renameFallbackOutput": "other events"
-        }
+        "options": {}
       }
     },
     {
@@ -165,7 +154,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ id: $('By event type').item.json.id, ok: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ id: $('Purchase order?').item.json.id, ok: true }) }}",
         "options": {}
       }
     },
@@ -185,7 +174,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ id: $('By event type').item.json.id, ok: false, error: String($json.error?.message ?? $json.error ?? 'email failed').slice(0, 500) }) }}",
+        "jsonBody": "={{ JSON.stringify({ id: $('Purchase order?').item.json.id, ok: false, error: String($json.error?.message ?? $json.error ?? 'email failed').slice(0, 500) }) }}",
         "options": {}
       }
     },
@@ -231,7 +220,7 @@
         280
       ],
       "parameters": {
-        "errorMessage": "=Purchase order {{ $('By event type').item.json.payload.key }} for {{ $('By event type').item.json.payload.supplier }} could not be sent after 5 attempts"
+        "errorMessage": "=Purchase order {{ $('Purchase order?').item.json.payload.key }} for {{ $('Purchase order?').item.json.payload.supplier }} could not be sent after 5 attempts"
       }
     },
     {
@@ -293,25 +282,7 @@
       "main": [
         [
           {
-            "node": "By event type",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "By event type": {
-      "main": [
-        [
-          {
-            "node": "Email purchase order",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Acknowledge (no CRM in demo)",
+            "node": "Purchase order?",
             "type": "main",
             "index": 0
           }
@@ -357,6 +328,24 @@
           }
         ],
         []
+      ]
+    },
+    "Purchase order?": {
+      "main": [
+        [
+          {
+            "node": "Email purchase order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Acknowledge (no CRM in demo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
