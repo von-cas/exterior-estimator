@@ -15,7 +15,7 @@ export function FlagList({ flags, canClear }: { flags: Flag[]; canClear: boolean
         {open.filter((f) => f.severity === "blocking").length} blocking, {open.filter((f) => f.severity === "warning").length} warnings open.
         Blocking flags stop approval. Clearing a flag needs a reason, and is logged.
       </p>
-      <table>
+      <table className="flags">
         <tbody>{sorted.map((f) => <FlagRow key={f.id} f={f} canClear={canClear} />)}</tbody>
       </table>
     </>

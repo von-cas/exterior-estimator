@@ -14,7 +14,7 @@ export default async function LogPage() {
   return (
     <>
       <h1>Log</h1>
-      <p className="muted">Every business event, failure, AI run and data change is recorded. n8n alerts on errors.</p>
+      <p className="lede">Every business event, failure, AI run and data change is recorded. n8n alerts on errors.</p>
       <Section title="Events">
         <thead><tr><th>When</th><th>Level</th><th>Event</th><th>Detail</th></tr></thead>
         <tbody>{events!.map((e) => (

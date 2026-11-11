@@ -11,7 +11,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ id: str
   const { sb, profile } = await requireUser();
   const { data: job } = await sb.from("jobs").select("*").eq("id", id).maybeSingle();
   if (!job) notFound();
-  const back = <p><Link href={`/jobs/${id}`}>← {job.name}</Link></p>;
+  const back = <p className="back"><Link href={`/jobs/${id}`}>← {job.name}</Link></p>;
   if (!canOrder(profile.role)) return <>{back}<p>Purchase orders are visible to admin, estimators and production.</p></>;
 
   const { data: est } = await sb.from("estimates").select("*").eq("job_id", id).eq("status", "approved").order("version", { ascending: false }).limit(1).maybeSingle();
@@ -27,7 +27,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ id: str
     <>
       {back}
       <h1>Gate 3: production takeoff and purchase orders</h1>
-      <p className="muted">From approved estimate v{est.version}: the same lines that were priced, grouped by supplier. Each order carries a unique key, so a retry can never order twice. Approved orders are sent by email through n8n.</p>
+      <p className="lede">From approved estimate v{est.version}: the same lines that were priced, grouped by supplier. Each order carries a unique key, so a retry can never order twice. Approved orders are sent by email through n8n.</p>
       {!measured && (
         <div className="notice warn row spread">
           <span>Window sizes come from photos. Window orders stay locked until a field measure is recorded.</span>

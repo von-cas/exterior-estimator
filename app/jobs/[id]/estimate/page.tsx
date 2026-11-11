@@ -14,7 +14,7 @@ export default async function EstimatePage({ params }: { params: Promise<{ id: s
   const { data: report } = await sb.from("measurement_reports").select("*").eq("job_id", id).order("created_at", { ascending: false }).limit(1).single();
   const { data: est } = await sb.from("estimates").select("*").eq("job_id", id).order("version", { ascending: false }).limit(1).maybeSingle();
 
-  const back = <p><Link href={`/jobs/${id}`}>← {job.name}</Link></p>;
+  const back = <p className="back"><Link href={`/jobs/${id}`}>← {job.name}</Link></p>;
 
   if (!canEstimate(profile.role)) {
     // Sales and production see selling prices only. Row-level security would hide costs anyway.

@@ -57,7 +57,7 @@ export function EstimateEditor(props: {
           <p className="muted small">Change products, waste, labor and margins; every line recalculates. Prices are made up for the demo.</p>
         </div>
         {!(result instanceof Error) && (
-          <div style={{ textAlign: "right" }}>
+          <div className="totalcard">
             <div className="muted small">Cost {usd(result.totalCost)} · margin {result.totalPrice ? pct(1 - result.totalCost / result.totalPrice) : "—"}</div>
             <div className="total">{usd(result.totalPrice)}</div>
           </div>
@@ -68,7 +68,7 @@ export function EstimateEditor(props: {
         <div className="panel row">
           <span className="muted">Trades:</span>
           {TRADES.map((t) => (
-            <label key={t} className="row" style={{ gap: 4 }}>
+            <label key={t} className="row toggle" style={{ gap: 6 }}>
               <input type="checkbox" checked={choices.trades.includes(t)}
                 onChange={(e) => update((c) => ({ ...c, trades: e.target.checked ? [...c.trades, t] : c.trades.filter((x) => x !== t) }))} />
               {TRADE_LABEL[t]}
@@ -122,7 +122,7 @@ function TradeCard({ trade, result, catalog, choices, update, readOnly }: {
           </label>
           <span className="muted small">= {pct(t.markup)} markup</span>
           <span className="muted small">cost {usd(t.cost)}</span>
-          <b className="mono">{usd(t.price)}</b>
+          <span className="tradeprice">{usd(t.price)}</span>
         </div>
       </div>
       <div className="scroll">

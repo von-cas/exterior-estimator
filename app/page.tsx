@@ -13,13 +13,24 @@ export default async function Jobs() {
     .select("id, name, created_at, measurement_reports(status, source, created_at), estimates(status, customer_total, version)")
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
+  const latest = jobs!.map((j) => ({
+    report: [...j.measurement_reports].sort((a, b) => b.created_at.localeCompare(a.created_at))[0],
+    est: [...j.estimates].sort((a, b) => b.version - a.version)[0],
+  }));
+  const approved = latest.filter((l) => l.est?.status === "approved");
   return (
     <>
       <h1>Jobs</h1>
-      <p className="muted">Each job starts from a measurement report. Measurements, the estimate and each purchase order are approved by a person.</p>
+      <p className="lede">Each job starts from a measurement report. Measurements, the estimate and each purchase order are approved by a person.</p>
+      <div className="stats">
+        <div className="stat"><div className="stat-k">Jobs</div><div className="stat-v">{jobs!.length}</div></div>
+        <div className="stat"><div className="stat-k">Measurements verified</div><div className="stat-v">{latest.filter((l) => l.report?.status === "verified").length}</div></div>
+        <div className="stat"><div className="stat-k">Estimates approved</div><div className="stat-v">{approved.length}</div></div>
+        <div className="stat dark"><div className="stat-k">Approved value</div><div className="stat-v">{usd(approved.reduce((s, l) => s + Number(l.est.customer_total), 0))}</div></div>
+      </div>
       {canEstimate(profile.role) && <UploadReport />}
       <div className="panel scroll">
-        <table>
+        <table className="jobs">
           <thead><tr><th>Job</th><th>Measurements</th><th>Estimate</th><th className="num">Customer total</th><th>Created</th></tr></thead>
           <tbody>
             {jobs!.map((j) => {
